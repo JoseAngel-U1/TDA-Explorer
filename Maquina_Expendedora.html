@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDA Explorer: Máquina Expendedora</title>
+    <!--! Three.js para visualizaciones 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!--! A-Frame para animaciones 3D más simples -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <!--! GSAP para animaciones suaves -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!--! Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- !Google Fonts - Poppins, Space Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!--! Estilos -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!--! Botón hamburguesa -->
+    <div class="hamburger-menu" id="hamburgerMenu">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+
+    <!--* Menú desplegable horizontal -->
+    <nav class="top-menu" id="topMenu">
+        <ul>
+            <li><a href="index.html">Principal</a></li>
+            <li><a href="Maquina_Expendedora.html">Maquina Expendedora</a></li>
+            <li><a href="ARrays.html">Visualizador AR: Tipos de Arreglos</a></li>
+        </ul>
+    </nav>
+
+    <script>
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const topMenu = document.getElementById('topMenu');
+
+        hamburgerMenu.addEventListener('click', () => {
+            topMenu.classList.toggle('active');
+        });
+    </script>
+
+    <!--! Bienvenida -->
+    <div class="neo-decoration circle" style="top: 10%; left: 5%;"></div>
+    <div class="neo-decoration square" style="bottom: 20%; right: 10%;"></div>
+
+    <header class="hero">
+        <h1>TDA Explorer:<br>Máquina Expendedora RA</h1>
+        <p>Este proyecto sirve como una <b>herramienta de aprendizaje visual e interactiva</b> para entender cómo
+            funcionan <b>arreglos, pilas y colas</b> y sus operaciones. Explora las estructuras con modelos 3D y
+            animaciones, <b>simulando</b> la gestión de productos y <b>la atención de clientes</b> en una <b>máquina
+                expendedora</b>.
+        </p>
+        <a href="#Simulacion-Maq-Exp" class="btn">
+            <i class="fas fa-code-branch"></i> Explorar Simulación de Máquina Expenderora
+        </a>
+    </header>
+
+    <!--! Contenido Principal -->
+    <main>
+        <!--! Section tda-cards -->
+        <section>
+            <h2>Tipos de Arreglos</h2>
+            <p>
+                Un Arreglo/Array <b>Es una estructura de datos</b> que <b>almacena una colección de elementos del mismo
+                    tipo</b> en posiciones de <b>manera contigua</b>
+                Los arreglos poseen <b>tres propiedades</b> esenciales: <b>Finita, Homogénea, Ordenada.</b><br>
+                La <b>cantidad</b> de <b>subindices, no depende</b> de el <b>tipo de Arreglo</b>.
+            </p>
+
+            <div class="tda-container">
+                <article class="tda-card" data-tda="Vectores">
+                    <h3>Unidimensionales (Vectores)</h3>
+                    <br>
+                    <p>Dimenciónes: <b>1 Dimención.</b></p>
+                    <p>Declaración en C: <br><b>int numeros[5];</b></p>
+
+                    <div class="visualization-area">
+                        <h4>Visualización Interactiva</h4>
+                        <div class="canvas-container" id="vector-canvas"></div>
+                    </div>
+                </article>
+
+                <article class="tda-card" data-tda="Matriz">
+                    <h3>Bidimensionales (Matriz)</h3>
+                    <br>
+                    <p>Dimenciónes: <b>2 Dimenciones.</b></p>
+                    <p>Declaración en C: <br><b>int matriz[3][4];</b></p>
+
+                    <div class="visualization-area">
+                        <h4>Visualización Interactiva</h4>
+                        <div class="canvas-container" id="Matriz-canvas"></div>
+                    </div>
+                </article>
+
+                <article class="tda-card" data-tda="Matriz de Matrizes">
+                    <h3>Tridimensionales (Matriz de Matrizes)</h3>
+                    <p>Dimenciónes: <b>3 Dimenciones.</b></p>
+                    <p>Declaración en C: <b>int cubo[2][3][4];</b></p>
+
+                    <div class="visualization-area">
+                        <h4>Visualización Interactiva</h4>
+                        <div class="canvas-container" id="Matriz-Matrizes-canvas"></div>
+                </article>
+            </div>
+        </section>
+
+        <!--! Section Simulación -->
+        <section id="Simulacion-Maq-Exp">
+            <h2>Simulación de Máquina Expenderora</h2>
+            <p>
+                Simulación en 3D de una <b>máquina expendedora - atención al cliente</b>, donde las pilas
+                y colas controlan la entrega de productos.
+            </p>
+
+            <div class="cola-vending-container">
+                <article class="tda-card vending-machine" data-tda="colas">
+                    <h3>Máquina Expendedora</h3>
+                    <p>Implementación: <b>Cola FIFO Aplicada</b></p>
+                    <p>Funcionamiento: Los clientes se <b>encolan</b> para ser atendidos y la máquina <b>despacha</b>
+                        productos en orden <b>aplilado</b>.</p>
+                    <p>Operación: El <b>primero</b> de la fila es <b>servido primero</b>, siguiendo el principio FIFO.
+                    </p>
+
+                    <div class="visualization-area">
+                        <h4>Visualización Interactiva</h4>
+                        <div class="canvas-container" id="vending-canvas"></div>
+
+                        <!--* Bottones -->
+                        <div class="control-buttons">
+                            <button class="control-btn serve" id="vending-add">Agregar Cliente <i
+                                    class="fas fa-user"></i></button>
+                            <button class="control-btn serve" id="vending-serve">Servir Cliente <i
+                                    class="fas fa-user"></i></button>
+                            <button class="control-btn restock" id="vending-restock">Reabastecer <i
+                                    class="fas fa-box"></i></button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+        
+        <!--! Section Código QR -->
+        <section id="qr-section">
+            <h2>Explora en tu Dispositivo Móvil</h2>
+            <p>
+                Escanea este <b>código QR</b> para acceder rápidamente a la versión móvil del proyecto o visualizar la
+                experiencia AR desde tu teléfono.
+            </p>
+            <div class="qr-container">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://tuejemplo.com/TDA-Explorer&size=200x200"
+                    alt="Código QR del proyecto" class="qr-image">
+                <p><b>Escanéame (celular)</b></p>
+            </div>
+        </section>
+    </main>
+
+    <!--! Footer -->
+    <footer>
+        <p>© 2025 TDA Explorer | Contenido basado en apuntes de Estructuras de Datos. <br>
+            Desarrollado por <strong>José Angel Meza Esparza</strong>
+        </p>
+    </footer>
+
+    <script src="JS/Maquina_Expendedora.js"></script>
+    <script src="JS/Arrays.js"></script>
+</body>
+
+</html>

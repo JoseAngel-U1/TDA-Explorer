@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDA Explorer: Glosario Interactivo de Estructuras de Datos</title>
+    <!--! Three.js para visualizaciones 3D 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>-->
+    <!--! A-Frame para animaciones 3D más simples -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <!--! GSAP para animaciones suaves -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!--! Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!--! Google Fonts - Poppins, Space Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <!--! Estilos -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!--! Botón hamburguesa -->
+    <div class="hamburger-menu" id="hamburgerMenu">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+
+    <!--* Menú desplegable horizontal -->
+    <nav class="top-menu" id="topMenu">
+        <ul>
+            <li><a href="index.html">Principal</a></li>
+            <li><a href="Maquina_Expendedora.html">Maquina Expendedora</a></li>
+            <li><a href="ARrays.html">Visualizador AR: Tipos de Arreglos</a></li>
+        </ul>
+    </nav>
+
+    <script> <!--? Script para Botón hamburger -->
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const topMenu = document.getElementById('topMenu');
+
+        hamburgerMenu.addEventListener('click', () => {
+            topMenu.classList.toggle('active');
+        });
+    </script>
+
+    <!--! Bienvenida -->
+    <div class="neo-decoration circle" style="top: 10%; left: 5%;"></div>
+    <div class="neo-decoration square" style="bottom: 20%; right: 10%;"></div>
+
+    <header class="hero">
+        <h1>TDA Explorer: Visualizando Estructuras de Datos</h1>
+        <p>Este proyecto sirve como una <b>herramienta de aprendizaje visual e interactiva</b> para entender cómo
+            funcionan los Tipos de Datos Abstractos (TDA) y sus operaciones. Explora las estructuras con modelos 3D y
+            animaciones.
+        </p>
+        <a href="#glosario-tda" class="btn">
+            <i class="fas fa-code-branch"></i> Explorar el Glosario TDA
+        </a>
+    </header>
+
+    <!--! Contenido Principal -->
+    <main id="glosario-tda">
+
+        <!--! Section tda-cards -->
+        <section>
+            <h2>Tipos de Datos Abstractos (TDA)</h2>
+            <p>Un TDA es un <b>conjunto de datos al cual se asocian operaciones.</b> Provee una interfaz para
+                realizar las operaciones permitidas, abstraída de cómo están implementadas.
+            </p>
+
+            <div class="tda-container">
+                <article class="tda-card" data-tda="pilas">
+                    <h3>Pilas (Stacks)</h3>
+                    <p>Clasificación: <b>Lineal.</b></p>
+                    <p>Regla Clave: Sigue la regla <b>LIFO (Last In, First Out)</b>: El último en entrar es el primero
+                        en salir.</p>
+                    <p>Operaciones: <b>Push (insertar) y Pop (eliminar)</b>, <b>solo desde la parte superior.</b></p>
+
+                    <div class="visualization-area">
+                        <h4>Visualización Interactiva</h4>
+                        <div class="canvas-container" id="stack-canvas"></div>
+                        <div class="control-buttons">
+                            <button class="control-btn push" id="stack-push">Push <i
+                                    class="fas fa-arrow-down"></i></button>
+                            <button class="control-btn pop" id="stack-pop">Pop <i class="fas fa-arrow-up"></i></button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="tda-card" data-tda="colas">
+                    <h3>Colas (Queues)</h3>
+                    <p>Clasificación: <b>Lineal.</b></p>
+                    <p>Regla Clave: Sigue la regla <b>FIFO (First In, First Out)</b>: El primero en entrar es el primero
+                        en salir.</p>
+                    <p>Distinción de Extremos: Se opera desde el <b>Frente</b> (por donde salen) y <b>Final</b> (por
+                        donde entran)</p>
+
+                    <div class="visualization-area">
+                        <h4>Visualización Interactiva</h4>
+                        <div class="canvas-container" id="queue-canvas"></div>
+                        <div class="control-buttons">
+                            <button class="control-btn enqueue" id="queue-enqueue">Enqueue <i
+                                    class="fas fa-arrow-right"></i></button>
+                            <button class="control-btn dequeue" id="queue-dequeue">Dequeue <i
+                                    class="fas fa-arrow-left"></i></button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="tda-card" data-tda="arboles">
+                    <h3>Árboles (Trees)</h3>
+                    <p>Clasificación: <b>No Lineal.</b></p>
+                    <p>Regla Clave: Estructura <b>jerárquica</b>. Cada nodo puede tener hijos y un único padre, excepto
+                        el <b>nodo raíz</b>.</p>
+                    <p>Operaciones: Recorridos (preorden, inorden, postorden), Inserción, Eliminación.</p>
+
+                    <div class="visualization-area">
+                        <h4>Visualización Interactiva</h4>
+                        <div class="canvas-container" id="tree-canvas"></div>
+                        <div class="control-buttons">
+                            <button class="control-btn insert" id="tree-insert">Insert <i
+                                    class="fas fa-plus"></i></button>
+                            <button class="control-btn delete" id="tree-delete">Delete <i
+                                    class="fas fa-minus"></i></button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="tda-card" data-tda="listas">
+                    <h3>Listas (Lists)</h3>
+                    <p>Clasificación: <b>Dinámica.</b></p>
+                    <p>Definición: Colección de elementos que se almacena de forma secuencial y puede <b>crecer o
+                            reducirse dinámicamente.</b></p>
+                    <p>Representación: Se construyen usando <b>Nodos</b>. Los nodos están <b>enlazados mediante
+                            referencia</b>.</p>
+                    <p>Tipos: <b>Simple</b> (cada nodo apunta al siguiente) y <b>Doble</b> (cada nodo
+                        apunta al siguiente y al anterior).</p>
+
+                    <div class="visualization-area">
+                        <h4>Visualización Interactiva</h4>
+                        <div class="canvas-container" id="list-canvas"></div>
+                        <div class="control-buttons">
+                            <button class="control-btn insert" id="list-insert">Insert <i
+                                    class="fas fa-plus"></i></button>
+                            <button class="control-btn delete" id="list-delete">Delete <i
+                                    class="fas fa-minus"></i></button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!--! Section recursividad -->
+        <section id="recursividad">
+            <h2>Recursividad: La Función que se Llama a Sí Misma</h2>
+            <p>Definición: Es una técnica donde <b>una función se llama a sí misma</b>.</p>
+            <p>Propósito: Reutilizar código y resolver un problema dividiéndolo en <b>subproblemas más pequeños</b>.</p>
+            <p>Regla Fundamental: Siempre debe tener una <b>condición de parada (condición base)</b> para evitar bucles
+                infinitos.</p>
+            <p>Flujo de Ejecución: Trabaja a través de <b>llamadas (bajada)</b>, y el problema se resuelve en el flujo
+                de
+                <b>retornos (subida)</b>. El proceso va devolviendo resultados parciales nivel por nivel.
+            </p>
+
+            <div class="visualization-area" style="max-width: 800px; margin: 3rem auto;">
+                <h4>Ejemplo Visual: Factorial</h4>
+                <div class="canvas-container" id="recursion-canvas"></div>
+                <div class="control-buttons">
+                    <button class="control-btn" id="recursion-start"
+                        style="border-color: var(--accent-blue); color: var(--accent-blue);">
+                        Iniciar Factorial(5) <i class="fas fa-play"></i>
+                    </button>
+                    <button class="control-btn" id="recursion-reset"
+                        style="border-color: var(--accent-yellow); color: var(--accent-yellow);">
+                        Reiniciar <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!--! Glosario terminos -->
+        <section id="glosario-terminos">
+            <h2>Glosario de Términos Clave</h2>
+            <p>Definiciones esenciales tomadas de sus apuntes.</p>
+            <div id="terminos-list" class="glossary-grid">
+                <!--* Se llenará dinámicamente con JS -->
+            </div>
+
+            <hr class="separador_hr">
+            <div id="terminosExt-list" class="glossary-grid">
+                <!--* Se llenará dinámicamente con JS -->
+            </div>
+
+        </section>
+        <img src="" alt="">
+    </main>
+
+    <!--! Footer -->
+    <footer>
+        <p>© 2025 TDA Explorer | Contenido basado en apuntes de Estructuras de Datos. <br>
+            Desarrollado por <strong>José Angel Meza Esparza</strong>
+        </p>
+    </footer>
+
+    <script src="JS/script.js"></script>
+</body>
+
+</html>

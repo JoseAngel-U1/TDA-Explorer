@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador AR: Tipos de Arreglos</title>
+    <!--! Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- !Google Fonts - Poppins, Space Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!--! Botón hamburguesa -->
+    <div class="hamburger-menu" id="hamburgerMenu">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+
+    <!--* Menú desplegable horizontal -->
+    <nav class="top-menu" id="topMenu">
+        <ul>
+            <li><a href="index.html">Principal</a></li>
+            <li><a href="Maquina_Expendedora.html">Maquina Expendedora</a></li>
+            <li><a href="ARrays.html">Visualizador AR: Tipos de Arreglos</a></li>
+        </ul>
+    </nav>
+
+    <script>
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const topMenu = document.getElementById('topMenu');
+
+        hamburgerMenu.addEventListener('click', () => {
+            topMenu.classList.toggle('active');
+        });
+    </script>
+
+    <!--! Bienvenida -->
+    <div class="neo-decoration circle" style="top: 10%; left: 5%;"></div>
+    <div class="neo-decoration square" style="bottom: 20%; right: 10%;"></div>
+
+    <header class="hero">
+        <h1>Bienvenido al Visualizador AR</h1>
+        <p>Esta aplicación te permite <b>visualizar</b> los <b>tres tipos</b> de <b>Arreglos/Arrays</b>:</p>
+        <ul>
+            <li>Vector - 5 cubos alineados horizontalmente</li>
+            <li>Matriz - 3x4 cubos en formato bidimensional</li>
+            <li>Cubo 3D - Estructura tridimensional de 3×3×3</li>
+        </ul>
+        <p><b>Para comenzar</b>, haz clic en el botón <b>"Iniciar AR"</b> cuando estés listo.</p>
+        <a class="btn" id="startARButton">
+            <i class="fas fa-code-branch"></i> Iniciar AR
+        </a>
+    </header>
+
+    <!--! Footer -->
+    <footer>
+        <p>© 2025 TDA Explorer | Contenido basado en apuntes de Estructuras de Datos. <br>
+            Desarrollado por <strong>José Angel Meza Esparza</strong>
+        </p>
+    </footer>
+
+    <div id="arScene"></div>
+
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165/build/three.module.js';
+
+        let scene, camera, renderer;
+        let vectorGroup, matrixGroup, cubeGroup;
+
+        init();
+
+        function init() {
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.01, 20);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.xr.enabled = true;
+
+            // Luz ambiental
+            const light = new THREE.HemisphereLight(0xffffff, 0x444444, 2);
+            scene.add(light);
+
+            window.addEventListener('resize', onWindowResize);
+
+            // Replace session listeners to use arScene instead of body
+            renderer.xr.addEventListener('sessionstart', () => {
+                console.log('AR session started');
+                // Note: we're now adding the renderer to #arScene in the click handler
+            });
+
+            renderer.xr.addEventListener('sessionend', () => {
+                console.log('AR session ended');
+                const arScene = document.getElementById('arScene');
+                if (arScene.contains(renderer.domElement)) {
+                    arScene.removeChild(renderer.domElement);
+                }
+            });
+        }
+
+        // VECTOR (izquierda)
+        function setupVector() {
+            vectorGroup = new THREE.Group();
+            scene.add(vectorGroup);
+
+            const vectorData = [
+                { color: 0x00FFFF },
+                { color: 0xFF00FF },
+                { color: 0xFFFF33 },
+                { color: 0x33FF33 },
+                { color: 0xA35050 }
+            ];
+            const spacing = 0.25;
+
+            for (let i = 0; i < vectorData.length; i++) {
+                const x = i * spacing - (vectorData.length * spacing) / 2;
+                const geom = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+                const mat = new THREE.MeshStandardMaterial({ color: vectorData[i].color });
+                const cube = new THREE.Mesh(geom, mat);
+                cube.position.set(x, 0, 0);
+                vectorGroup.add(cube);
+            }
+
+            vectorGroup.position.set(-0.6, 0, -1); // izquierda
+        }
+
+        // MATRIZ (centro)
+        function setupMatrix() {
+            matrixGroup = new THREE.Group();
+            scene.add(matrixGroup);
+
+            const rows = 3, cols = 4;
+            const colors = [0x00FFFF, 0xFF00FF, 0xFFFF33, 0xFF3333];
+            const spacing = 0.15;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const geom = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+                    const mat = new THREE.MeshStandardMaterial({ color: colors[c % colors.length] });
+                    const cube = new THREE.Mesh(geom, mat);
+                    cube.position.set((c - cols / 2) * spacing, r * spacing, 0);
+                    matrixGroup.add(cube);
+                }
+            }
+
+            matrixGroup.position.set(0, 0, -1); // centro
+        }
+
+        // CUBO (derecha)
+        function setupCube() {
+            cubeGroup = new THREE.Group();
+            scene.add(cubeGroup);
+
+            const layers = 3, rows = 3, cols = 3;
+            const baseColors = [0x00FFFF, 0xFF00FF, 0xFFFF33];
+            const spacing = 0.12;
+
+            for (let l = 0; l < layers; l++) {
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const geom = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+                        const mat = new THREE.MeshStandardMaterial({ color: baseColors[l % baseColors.length] });
+                        const cube = new THREE.Mesh(geom, mat);
+                        cube.position.set(
+                            (c - 1) * spacing,
+                            l * spacing,
+                            (r - 1) * spacing
+                        );
+                        cubeGroup.add(cube);
+                    }
+                }
+            }
+
+            cubeGroup.position.set(0.6, 0, -1); // derecha
+        }
+
+        function animate() {
+            renderer.setAnimationLoop(() => {
+                if (vectorGroup) vectorGroup.rotation.y += 0.01;
+                if (matrixGroup) matrixGroup.rotation.y += 0.008;
+                if (cubeGroup) cubeGroup.rotation.y += 0.006;
+                renderer.render(scene, camera);
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Update the script section to handle AR button click directly
+        document.getElementById('startARButton').addEventListener('click', function () {
+            if (navigator.xr) {
+                navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+                    if (supported) {
+                        // Request AR session directly
+                        navigator.xr.requestSession('immersive-ar', {
+                            requiredFeatures: ['hit-test']
+                        }).then((session) => {
+                            // Set the session to the renderer
+                            renderer.xr.setSession(session);
+
+                            // Add renderer to the arScene container
+                            document.getElementById('arScene').appendChild(renderer.domElement);
+
+                            // Setup 3D objects
+                            setupVector();
+                            setupMatrix();
+                            setupCube();
+                            animate();
+
+                        }).catch((error) => {
+                            alert('Error al iniciar AR: ' + error);
+                        });
+                    } else {
+                        alert('AR no es compatible con tu dispositivo');
+                    }
+                });
+            } else {
+                alert('WebXR no es compatible con este navegador');
+            }
+        });
+    </script>
+</body>
+
+</html>
