@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualizador AR: Tipos de Arreglos</title>
+    <link rel="stylesheet" href="styles.css">
     <!--! Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- !Google Fonts - Poppins, Space Mono -->
@@ -13,8 +14,6 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap"
         rel="stylesheet">
-
-    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -61,6 +60,8 @@
         </a>
     </header>
 
+
+
     <!--! Footer -->
     <footer>
         <p>© 2025 TDA Explorer | Contenido basado en apuntes de Estructuras de Datos. <br>
@@ -72,6 +73,7 @@
 
     <script type="module">
         import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165/build/three.module.js';
+        import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.165/examples/jsm/webxr/ARButton.js';
 
         let scene, camera, renderer;
         let vectorGroup, matrixGroup, cubeGroup;
@@ -87,23 +89,50 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.xr.enabled = true;
 
+            // Remove the automatic ARButton injection block and add click listener to custom button
+            document.getElementById('startARButton').addEventListener('click', function () {
+                if (navigator.xr) {
+                    navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+                        if (supported) {
+                            const arBtn = ARButton.createButton(renderer, {
+                                requiredFeatures: ['hit-test'],
+                                onUnsupported: () => { } // Hide unsupported message
+                            });
+
+                            // Add and click the AR button
+                            document.body.appendChild(arBtn);
+                            arBtn.click(); // Auto-start the session
+                            arBtn.style.display = 'none'; // Hide the button after clicking
+                        } else {
+                            alert('AR no es compatible con tu dispositivo');
+                        }
+                    });
+                } else {
+                    alert('WebXR no es compatible con este navegador');
+                }
+            });
+
             // Luz ambiental
             const light = new THREE.HemisphereLight(0xffffff, 0x444444, 2);
             scene.add(light);
 
             window.addEventListener('resize', onWindowResize);
 
-            // Replace session listeners to use arScene instead of body
+            // Add session start listener
             renderer.xr.addEventListener('sessionstart', () => {
                 console.log('AR session started');
-                // Note: we're now adding the renderer to #arScene in the click handler
+                document.body.appendChild(renderer.domElement);
+                setupVector();
+                setupMatrix();
+                setupCube();
+                animate();
             });
 
+            // Add session end listener for cleanup
             renderer.xr.addEventListener('sessionend', () => {
                 console.log('AR session ended');
-                const arScene = document.getElementById('arScene');
-                if (arScene.contains(renderer.domElement)) {
-                    arScene.removeChild(renderer.domElement);
+                if (document.body.contains(renderer.domElement)) {
+                    document.body.removeChild(renderer.domElement);
                 }
             });
         }
@@ -198,39 +227,6 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
-
-        // Update the script section to handle AR button click directly
-        document.getElementById('startARButton').addEventListener('click', function () {
-            if (navigator.xr) {
-                navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
-                    if (supported) {
-                        // Request AR session directly
-                        navigator.xr.requestSession('immersive-ar', {
-                            requiredFeatures: ['hit-test']
-                        }).then((session) => {
-                            // Set the session to the renderer
-                            renderer.xr.setSession(session);
-
-                            // Add renderer to the arScene container
-                            document.getElementById('arScene').appendChild(renderer.domElement);
-
-                            // Setup 3D objects
-                            setupVector();
-                            setupMatrix();
-                            setupCube();
-                            animate();
-
-                        }).catch((error) => {
-                            alert('Error al iniciar AR: ' + error);
-                        });
-                    } else {
-                        alert('AR no es compatible con tu dispositivo');
-                    }
-                });
-            } else {
-                alert('WebXR no es compatible con este navegador');
-            }
-        });
     </script>
 </body>
 
