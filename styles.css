@@ -467,3 +467,37 @@ footer {
     color: var(--accent-green);
     border-bottom-color: var(--accent-green);
 }
+
+/*! Alertas */
+.custom-alert {
+    min-width: 250px;
+    margin-bottom: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: var(--card-border-radius);
+    color: var(--text-primary);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    box-shadow: var(--card-shadow);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s ease;
+}
+
+/** Aumentar la línea debajo del título en SweetAlert2 */
+.swal2-title::after {
+    content: '';
+    display: block;
+    width: 35%; /*? ancho completo del título */
+    height: 3px; /*? grosor de la línea */
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), transparent);
+    margin: 0.5rem 0 0; /*? separación debajo del título */
+}
+
+.custom-alert.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.custom-alert.success { background-color: var(--accent-green); }
+.custom-alert.warning { background-color: var(--accent-yellow); color: var(--text-primary); }
+.custom-alert.error { background-color: var(--accent-purple); }

@@ -77,11 +77,18 @@ const terminosExtra = [
     }
 ];
 
+//TODO: Variables de audio (deben estar accesibles en todo el script)
+let pushEnqueuesound;
+let popDequeuesound;
+
 
 //TODO: Cargar datos del glosario:
 document.addEventListener('DOMContentLoaded', function () {
     const glosarioContainer = document.getElementById('terminos-list');
     const glosarioExtContainer = document.getElementById('terminosExt-list');
+    //*Sonidos: asignar después de que el DOM exista
+    pushEnqueuesound = document.getElementById("push-Enqueue-sound");
+    popDequeuesound = document.getElementById("pop-Dequeue-sound");
 
     //* Llenar el glosario
     terminosData.forEach(item => {
@@ -111,7 +118,51 @@ document.addEventListener('DOMContentLoaded', function () {
     setupTreeVisualization();
     setupListVisualization();
     setupRecursionVisualization();
+
+    //* Listener para "priming" de audio al primer click del usuario
+    // Esto permite que los navegadores permitan la reproducción posterior sin interacción adicional.
+    document.body.addEventListener("click", () => {
+        if (pushEnqueuesound) {
+            //* intentar reproducir y pausar inmediatamente para "unlock" audio
+            const p = pushEnqueuesound.play();
+            if (p && p.then) p.then(() => pushEnqueuesound.pause()).catch(() => {});
+        }
+        if (popDequeuesound) {
+            const p2 = popDequeuesound.play();
+            if (p2 && p2.then) p2.then(() => popDequeuesound.pause()).catch(() => {});
+        }
+    }, { once: true });
 });
+
+//! Alertas personalizadas
+function showAlert(title, message, type = "info") {
+    let iconColor;
+    switch (type) {
+        case "success":
+            iconColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-green');
+            break;
+        case "error":
+            iconColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-purple');
+            break;
+        case "warning":
+            iconColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-yellow');
+            break;
+        default:
+            iconColor = '#ffffff';
+    }
+
+    Swal.fire({
+        title: title,
+        text: message,
+        icon: type,
+        iconColor: iconColor,
+        background: getComputedStyle(document.documentElement).getPropertyValue('--bg-card'),
+        color: getComputedStyle(document.documentElement).getPropertyValue('--text-primary'),
+        showConfirmButton: true,
+        confirmButtonColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-green')
+    });
+}
+
 
 //TODO: Configuración de la visualización de Pilas:
 function setupStackVisualization() {
@@ -150,6 +201,35 @@ function setupStackVisualization() {
     base.position.y = -1.5;
     scene.add(base);
 
+    //* Indicador del Tope
+    const topeDiv = document.createElement('div');
+    topeDiv.style.position = 'absolute';
+    topeDiv.style.color = '#00ff9d';
+    topeDiv.style.fontFamily = "'Space Mono', monospace";
+    topeDiv.style.fontSize = '16px';
+    topeDiv.style.fontWeight = '700';
+    topeDiv.style.display = 'none'; // oculto al inicio
+    topeDiv.textContent = '← Tope';
+    stackCanvas.appendChild(topeDiv);
+
+    //TODO: Función para actualizar posición del texto "← Tope"
+    const tempVector = new THREE.Vector3();
+    function updateTopLabelPosition() {
+        if (stack.length > 0) {
+            const topBox = stack[stack.length - 1];
+            tempVector.copy(topBox.position);
+            tempVector.project(camera);
+
+            const x = (tempVector.x * 0.5 + 0.5) * width;
+            const y = (-tempVector.y * 0.5 + 0.5) * height;
+            topeDiv.style.left = `${x + 30}px`;
+            topeDiv.style.top = `${y - 13}px`;
+            topeDiv.style.display = 'block';
+        } else {
+            topeDiv.style.display = 'none';
+        }
+    }
+
     //TODO: Eventos de botones
     document.getElementById('stack-push').addEventListener('click', () => {
         if (stack.length < maxStackSize) {
@@ -163,6 +243,19 @@ function setupStackVisualization() {
 
             //* Animación con GSAP
             gsap.to(box.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "back.out" }); //? Lo anima desde una escala pequeña (0.1) hasta tamaño completo (1) con un efecto de rebote.
+
+            //* Actualizar el indicador del Tope
+            updateTopLabelPosition();
+
+            //* Reproducir sonido de push
+            if (pushEnqueuesound) {
+                pushEnqueuesound.pause();
+                pushEnqueuesound.currentTime = 0;
+                pushEnqueuesound.play().catch(() => {});
+            }
+        } else {
+            //* Desbordamiento (Overflow)
+            showAlert("Stack Overflow!", "La pila está llena. No puedes agregar más elementos hasta que elimines algunos.", "error");
         }
     });
 
@@ -178,6 +271,19 @@ function setupStackVisualization() {
                     scene.remove(box); //? Lo elimina de la escena.
                 }
             });
+
+            //* Actualizar el indicador del Tope
+            updateTopLabelPosition();
+
+            //* Reproducir sonido de pop
+            if (popDequeuesound) {
+                popDequeuesound.pause();
+                popDequeuesound.currentTime = 0;
+                popDequeuesound.play().catch(() => {});
+            }
+        } else {
+            //* Subdesbordamiento (Underflow)
+            showAlert("Stack Underflow!", "La pila está vacía. No se pueden extraer elementos porque no quedan ninguno.", "error");
         }
     });
 
@@ -265,6 +371,16 @@ function setupQueueVisualization() {
 
             //* Reordenar toda la cola
             repositionQueue();
+
+            //* Reproducir sonido de Enqueu
+            if (pushEnqueuesound) {
+                pushEnqueuesound.pause();
+                pushEnqueuesound.currentTime = 0;
+                pushEnqueuesound.play().catch(() => {});
+            }
+        } else {
+            //* Desbordamiento (Overflow)
+            showAlert("Queue Overflow!", "La cola está llena. No puedes agregar más elementos hasta que elimines algunos.", "error");
         }
     });
 
@@ -282,6 +398,16 @@ function setupQueueVisualization() {
 
             //* Reordenar la cola después de eliminar
             setTimeout(repositionQueue, 100);
+            
+            //* Reproducir sonido de Dequeue
+            if (popDequeuesound) {
+                popDequeuesound.pause();
+                popDequeuesound.currentTime = 0;
+                popDequeuesound.play().catch(() => {});
+            }
+        } else {
+            //* Subdesbordamiento (Underflow)
+            showAlert('Queue Underflow!', 'La cola está vacía. No puedes eliminar elementos porque no hay ninguno.', 'warning');
         }
     });
 
@@ -424,6 +550,13 @@ function setupTreeVisualization() {
         }
 
         insert(root);
+
+        //* Reproducir sonido de insertNodo
+        if (pushEnqueuesound) {
+            pushEnqueuesound.pause();
+            pushEnqueuesound.currentTime = 0;
+            pushEnqueuesound.play().catch(() => {});
+        }
     }
 
     //* Función para eliminar un nodo hoja aleatorio
@@ -487,6 +620,13 @@ function setupTreeVisualization() {
                     }
                 }
             });
+        }
+
+        //* Reproducir sonido de RemoverNodo
+        if (popDequeuesound) {
+            popDequeuesound.pause();
+            popDequeuesound.currentTime = 0;
+            popDequeuesound.play().catch(() => {});
         }
     }
 
@@ -613,6 +753,13 @@ function setupListVisualization() {
         }
 
         nodes.push(newNode);
+
+        //* Reproducir sonido de Add
+        if (pushEnqueuesound) {
+            pushEnqueuesound.pause();
+            pushEnqueuesound.currentTime = 0;
+            pushEnqueuesound.play().catch(() => {});
+        }
     }
 
     //* Eliminar el último nodo
@@ -636,6 +783,13 @@ function setupListVisualization() {
             const arrowToRemove = arrows.pop();
             scene.remove(arrowToRemove.line);
             scene.remove(arrowToRemove.head);
+        }
+
+        //* Reproducir sonido de remove
+        if (popDequeuesound) {
+            popDequeuesound.pause();
+            popDequeuesound.currentTime = 0;
+            popDequeuesound.play().catch(() => {});
         }
     }
 
