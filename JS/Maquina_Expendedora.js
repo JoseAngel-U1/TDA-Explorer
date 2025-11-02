@@ -149,8 +149,7 @@ function setupVendingMachineVisualization() {
             color: type.color
         });
         const product = new THREE.Mesh(geometry, material);
-        return product;git update-git-for-windows
-
+        return product;
     }
 
     //TODO: Agregar un producto a una pila específica:
