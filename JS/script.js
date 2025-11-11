@@ -356,6 +356,65 @@ function setupQueueVisualization() {
     createMarker(-2.5, 0xc67fff, 'SALIDA');
     createMarker(2.5, 0x00d9ff, 'ENTRADA');
 
+    //* Indicadores dinámicos de Frente y Final
+    const frontDiv = document.createElement('div');
+    frontDiv.style.position = 'absolute';
+    frontDiv.style.color = '#ff7070';
+    frontDiv.style.fontFamily = "'Space Mono', monospace";
+    frontDiv.style.fontSize = '14px';
+    frontDiv.style.fontWeight = '700';
+    frontDiv.style.display = 'none';
+    frontDiv.textContent = 'Frente ↓';
+    queueCanvas.appendChild(frontDiv);
+
+    const rearDiv = document.createElement('div');
+    rearDiv.style.position = 'absolute';
+    rearDiv.style.color = '#70ff70';
+    rearDiv.style.fontFamily = "'Space Mono', monospace";
+    rearDiv.style.fontSize = '14px';
+    rearDiv.style.fontWeight = '700';
+    rearDiv.style.display = 'none';
+    rearDiv.textContent = 'Final ↑';
+    queueCanvas.appendChild(rearDiv);
+
+    //* Función para actualizar etiquetas de Frente y Final
+    const tempVector = new THREE.Vector3();
+    function updateQueueLabels() {
+        if (queue.length > 0) {
+            //* Un unico elemento: 
+            if (queue.length === 1) {
+                frontDiv.textContent = '↓ Frente / Fin';
+                rearDiv.style.display = 'none';
+            } else {
+                frontDiv.style.color = '#ff7070';
+                frontDiv.textContent = 'Frente ↓';
+            }
+
+            //* Frente: 
+            const frontBox = queue[0];
+            tempVector.copy(frontBox.position);
+            tempVector.project(camera);
+            const fx = (tempVector.x * 0.5 + 0.5) * width;
+            const fy = (-tempVector.y * 0.5 + 0.5) * height;
+            frontDiv.style.left = `${fx - 50}px`;
+            frontDiv.style.top = `${fy - 40}px`;
+            frontDiv.style.display = 'block';
+
+            //* Final: 
+            const rearBox = queue[queue.length - 1];
+            tempVector.copy(rearBox.position);
+            tempVector.project(camera);
+            const rx = (tempVector.x * 0.5 + 0.5) * width;
+            const ry = (-tempVector.y * 0.5 + 0.5) * height;
+            rearDiv.style.left = `${rx - 50}px`;
+            rearDiv.style.top = `${ry + 25}px`;
+            rearDiv.style.display = queue.length > 1 ? 'block' : 'none';
+        } else {
+            frontDiv.style.display = 'none';
+            rearDiv.style.display = 'none';
+        }
+    }
+
     //TODO: Eventos de botones
     document.getElementById('queue-enqueue').addEventListener('click', () => {
         if (queue.length < maxQueueSize) {
@@ -371,6 +430,7 @@ function setupQueueVisualization() {
 
             //* Reordenar toda la cola
             repositionQueue();
+            updateQueueLabels();
 
             //* Reproducir sonido de Enqueu
             if (pushEnqueuesound) {
@@ -397,8 +457,11 @@ function setupQueueVisualization() {
             });
 
             //* Reordenar la cola después de eliminar
-            setTimeout(repositionQueue, 100);
-            
+            setTimeout(() => {
+                repositionQueue();
+                updateQueueLabels();
+            }, 200);
+
             //* Reproducir sonido de Dequeue
             if (popDequeuesound) {
                 popDequeuesound.pause();
@@ -436,6 +499,7 @@ function setupQueueVisualization() {
     function animate() {
         requestAnimationFrame(animate);
         renderer.render(scene, camera);
+        updateQueueLabels();
     }
     animate();
 }
