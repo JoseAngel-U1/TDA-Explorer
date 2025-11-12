@@ -295,7 +295,7 @@ function setupStackVisualization() {
     animate();
 }
 
-//TODO: Configuración de la visualización de Colas
+//TODO: Configuración de la visualización de Colas 
 function setupQueueVisualization() {
     const queueCanvas = document.getElementById('queue-canvas');
     const width = queueCanvas.clientWidth;
@@ -322,6 +322,8 @@ function setupQueueVisualization() {
     const queue = [];
     const maxQueueSize = 4;
     const boxGeometry = new THREE.BoxGeometry(1, 0.8, 0.8);
+    let frontIndex = 0; //? índice del frente actual
+    let memoryUsed = 0; //? cantidad de posiciones usadas permanentemente
 
     //* Base de la cola
     const baseGeometry = new THREE.BoxGeometry(6, 0.2, 1.5);
@@ -339,7 +341,6 @@ function setupQueueVisualization() {
         cone.rotation.z = Math.PI / 2;
         scene.add(cone);
 
-        //* Etiqueta
         const div = document.createElement('div');
         div.style.position = 'absolute';
         div.style.color = '#' + color.toString(16).padStart(6, '0');
@@ -347,9 +348,9 @@ function setupQueueVisualization() {
         div.style.fontWeight = 'bold';
         div.style.fontSize = '12px';
         div.textContent = text;
-        div.style.bottom = (x > 0 ? '10px' : '10px');
-        div.style.right = (x > 0 ? '10px' : 'auto');
-        div.style.left = (x < 0 ? '10px' : 'auto');
+        div.style.bottom = '10px';
+        if (x > 0) div.style.right = '10px';
+        else div.style.left = '10px';
         queueCanvas.appendChild(div);
     };
 
@@ -380,35 +381,43 @@ function setupQueueVisualization() {
     //* Función para actualizar etiquetas de Frente y Final
     const tempVector = new THREE.Vector3();
     function updateQueueLabels() {
-        if (queue.length > 0) {
-            //* Un unico elemento: 
-            if (queue.length === 1) {
-                frontDiv.textContent = '↓ Frente / Fin';
-                rearDiv.style.display = 'none';
+        if (queue.length > 0 && frontIndex < queue.length) {
+            const frontBox = queue[frontIndex];
+            const rearBox = queue[queue.length - 1];
+
+            if (frontBox) {
+                if (queue.filter(x => x !== null).length === 1) {
+                    frontDiv.textContent = 'Frente ↓';
+                    rearDiv.style.display = 'none';
+                } else {
+                    frontDiv.textContent = 'Frente ↓';
+                    rearDiv.textContent = 'Final ↑';
+                }
+
+                //* Frente:
+                tempVector.copy(frontBox.position);
+                tempVector.project(camera);
+                const fx = (tempVector.x * 0.5 + 0.5) * width;
+                const fy = (-tempVector.y * 0.5 + 0.5) * height;
+                frontDiv.style.left = `${fx - 50}px`;
+                frontDiv.style.top = `${fy - 40}px`;
+                frontDiv.style.display = 'block';
             } else {
-                frontDiv.style.color = '#ff7070';
-                frontDiv.textContent = 'Frente ↓';
+                frontDiv.style.display = 'none';
             }
 
-            //* Frente: 
-            const frontBox = queue[0];
-            tempVector.copy(frontBox.position);
-            tempVector.project(camera);
-            const fx = (tempVector.x * 0.5 + 0.5) * width;
-            const fy = (-tempVector.y * 0.5 + 0.5) * height;
-            frontDiv.style.left = `${fx - 50}px`;
-            frontDiv.style.top = `${fy - 40}px`;
-            frontDiv.style.display = 'block';
-
-            //* Final: 
-            const rearBox = queue[queue.length - 1];
-            tempVector.copy(rearBox.position);
-            tempVector.project(camera);
-            const rx = (tempVector.x * 0.5 + 0.5) * width;
-            const ry = (-tempVector.y * 0.5 + 0.5) * height;
-            rearDiv.style.left = `${rx - 50}px`;
-            rearDiv.style.top = `${ry + 25}px`;
-            rearDiv.style.display = queue.length > 1 ? 'block' : 'none';
+            //* Final:
+            if (rearBox) {
+                tempVector.copy(rearBox.position);
+                tempVector.project(camera);
+                const rx = (tempVector.x * 0.5 + 0.5) * width;
+                const ry = (-tempVector.y * 0.5 + 0.5) * height;
+                rearDiv.style.left = `${rx - 50}px`;
+                rearDiv.style.top = `${ry + 25}px`;
+                rearDiv.style.display = 'block';
+            } else {
+                rearDiv.style.display = 'none';
+            }
         } else {
             frontDiv.style.display = 'none';
             rearDiv.style.display = 'none';
@@ -417,83 +426,66 @@ function setupQueueVisualization() {
 
     //TODO: Eventos de botones
     document.getElementById('queue-enqueue').addEventListener('click', () => {
+        //* Si memoria ya está llena pero la cola vacía => error de memoria llena
+        if (memoryUsed >= maxQueueSize && queue.filter(x => x !== null).length === 0) {
+            showAlert("Espacio en memoria lleno", "La cola ha alcanzado su capacidad máxima. El sistema no puede almacenar más elementos.", "error");
+            return;
+        }
+
+        //* Si aún hay espacio libre en memoria
         if (queue.length < maxQueueSize) {
             const colors = [0x00ff9d, 0x00d9ff, 0xc67fff, 0xffde59];
             const material = new THREE.MeshPhongMaterial({ color: colors[queue.length % colors.length] });
             const box = new THREE.Mesh(boxGeometry, material);
 
-            //* Empieza fuera de la vista a la derecha
+            const targetX = 1.5 - (queue.length * 1.2);
             box.position.set(4, 0, 0);
             box.scale.set(0.1, 0.1, 0.1);
             scene.add(box);
             queue.push(box);
+            memoryUsed++; // Se incrementa el uso de memoria total
 
-            //* Reordenar toda la cola
-            repositionQueue();
+            gsap.to(box.position, { x: targetX, duration: 0.7, ease: "power2.out" });
+            gsap.to(box.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "back.out" });
+
             updateQueueLabels();
 
-            //* Reproducir sonido de Enqueu
             if (pushEnqueuesound) {
                 pushEnqueuesound.pause();
                 pushEnqueuesound.currentTime = 0;
                 pushEnqueuesound.play().catch(() => {});
             }
         } else {
-            //* Desbordamiento (Overflow)
             showAlert("Queue Overflow!", "La cola está llena. No puedes agregar más elementos hasta que elimines algunos.", "error");
         }
     });
 
     document.getElementById('queue-dequeue').addEventListener('click', () => {
-        if (queue.length > 0) {
-            const box = queue.shift();
-            gsap.to(box.position, {
-                x: -4,
-                duration: 0.7,
-                ease: "power2.inOut",
-                onComplete: () => {
-                    scene.remove(box);
+        if (queue.length > 0 && frontIndex < queue.length) {
+            const frontBox = queue[frontIndex];
+            if (frontBox) {
+                gsap.to(frontBox.position, {
+                    x: -4,
+                    duration: 0.7,
+                    ease: "power2.inOut",
+                    onComplete: () => {
+                        scene.remove(frontBox);
+                        queue[frontIndex] = null; //? marcar como vacío
+                        frontIndex++; //? avanzar el frente
+                        updateQueueLabels();
+                    }
+                });
+
+                if (popDequeuesound) {
+                    popDequeuesound.pause();
+                    popDequeuesound.currentTime = 0;
+                    popDequeuesound.play().catch(() => {});
                 }
-            });
-
-            //* Reordenar la cola después de eliminar
-            setTimeout(() => {
-                repositionQueue();
-                updateQueueLabels();
-            }, 200);
-
-            //* Reproducir sonido de Dequeue
-            if (popDequeuesound) {
-                popDequeuesound.pause();
-                popDequeuesound.currentTime = 0;
-                popDequeuesound.play().catch(() => {});
             }
         } else {
-            //* Subdesbordamiento (Underflow)
             showAlert('Queue Underflow!', 'La cola está vacía. No puedes eliminar elementos porque no hay ninguno.', 'warning');
         }
     });
-
-    function repositionQueue() {
-        queue.forEach((box, index) => {
-            const targetX = 1.5 - (index * 1.2);
-            const targetScale = 1;
-
-            gsap.to(box.position, {
-                x: targetX,
-                duration: 0.7,
-                ease: "power2.out"
-            });
-
-            gsap.to(box.scale, {
-                x: targetScale,
-                y: targetScale,
-                z: targetScale,
-                duration: 0.5,
-                ease: "back.out"
-            });
-        });
-    }
 
     //* Animación
     function animate() {
@@ -503,6 +495,7 @@ function setupQueueVisualization() {
     }
     animate();
 }
+
 
 //TODO: Configuración de la visualización de Árboles
 function setupTreeVisualization() {
