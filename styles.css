@@ -248,6 +248,12 @@ section {
     gap: 1rem;
     margin-top: 1rem;
 }
+.control-buttons-Colas {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 1rem;
+}
 
 .control-btn {
     padding: 0.5rem 1rem;
@@ -312,6 +318,50 @@ section {
     margin: 40px auto;
     border-top: 3px solid var(--accent-green);
 }
+
+
+/*TODO: Selector de Colas: */
+.queue-selector {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.queue-selector label {
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#tipoCola {
+    background: #1a1a1a;
+    color: #ffde59;
+    border: 2px solid #2f2b2b;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#tipoCola:hover {
+    border-color: #00ff95;
+    color: #00ff95;
+}
+
+#tipoCola:focus {
+    border-color: #00ff95;
+    box-shadow: 0 0 8px #00ff95;
+}
+
+#tipoCola option {
+    background: #1a1a1a;
+    color: #fff;
+}
+/*TODO: Fin Selector */
+
 
 footer {
     background-color: var(--bg-secondary);

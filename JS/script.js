@@ -38,7 +38,7 @@ const terminosData = [
 const terminosExtra = [
     {
         termino: "NULL",
-        definicioninicion: "Representa la ausencia de un valor o la falta de información. El elemento existe, pero no posee valor."
+        definicion: "Representa la ausencia de un valor o la falta de información. El elemento existe, pero no posee valor."
     },
     {
         termino: "DELETE",
@@ -114,7 +114,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     //* Inicializar visualizaciones: "Reprecentaciones Graficas"
     setupStackVisualization();
-    setupQueueVisualization();
+    /* setupQueueVisualization(); //? Se carga en el script: "CambiarAnimacionCola.js"
+    setupQueueCircleVisualization();//? Se carga en el script: "CambiarAnimacionCola.js" */
     setupTreeVisualization();
     setupListVisualization();
     setupRecursionVisualization();
@@ -164,7 +165,7 @@ function showAlert(title, message, type = "info") {
 }
 
 
-//TODO: Configuración de la visualización de Pilas:
+//TODO: Configuración de la visualización de Pilas: 
 function setupStackVisualization() {
     //TODO: Configuración Three.js para el stack
     const stackCanvas = document.getElementById('stack-canvas');
@@ -295,7 +296,7 @@ function setupStackVisualization() {
     animate();
 }
 
-//TODO: Configuración de la visualización de Colas 
+//TODO: Configuración de la visualización de Colas: 
 function setupQueueVisualization() {
     const queueCanvas = document.getElementById('queue-canvas');
     const width = queueCanvas.clientWidth;
@@ -486,6 +487,220 @@ function setupQueueVisualization() {
             showAlert('Queue Underflow!', 'La cola está vacía. No puedes eliminar elementos porque no hay ninguno.', 'warning');
         }
     });
+
+    //* Animación
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+        updateQueueLabels();
+    }
+    animate();
+}
+
+//TODO: Configuración de la visualización de Colas circular: 
+function setupQueueCircleVisualization() {
+    const queueCanvas = document.getElementById('queueCircle-canvas');
+    const width = queueCanvas.clientWidth;
+    const height = queueCanvas.clientHeight;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(width, height);
+    renderer.setClearColor(0x252525);
+    queueCanvas.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.z = 6;
+
+    //* Iluminación
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(0, 5, 10);
+    scene.add(light);
+
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+
+    //* Crear elementos de la cola
+    const queue = [];
+    let frontIndex = 0;   // <<<<<<<<<<<<<<<<<<<<<< AÑADIDO
+    const maxQueueSize = 4;
+    const boxGeometry = new THREE.BoxGeometry(1, 0.8, 0.8);
+
+    //* Base de la cola
+    const baseGeometry = new THREE.BoxGeometry(6, 0.2, 1.5);
+    const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x444444 });
+    const base = new THREE.Mesh(baseGeometry, baseMaterial);
+    base.position.y = -1;
+    scene.add(base);
+
+    //* Marcadores de entrada/salida
+    const createMarker = (x, color, text) => {
+        const geometry = new THREE.ConeGeometry(0.4, 0.8, 32);
+        const material = new THREE.MeshPhongMaterial({ color });
+        const cone = new THREE.Mesh(geometry, material);
+        cone.position.set(x, 0, 0);
+        cone.rotation.z = Math.PI / 2;
+        scene.add(cone);
+
+        //* Etiqueta
+        const div = document.createElement('div');
+        div.style.position = 'absolute';
+        div.style.color = '#' + color.toString(16).padStart(6, '0');
+        div.style.fontFamily = 'Space Mono, monospace';
+        div.style.fontWeight = 'bold';
+        div.style.fontSize = '12px';
+        div.textContent = text;
+        div.style.bottom = (x > 0 ? '10px' : '10px');
+        div.style.right = (x > 0 ? '10px' : 'auto');
+        div.style.left = (x < 0 ? '10px' : 'auto');
+        queueCanvas.appendChild(div);
+    };
+
+    createMarker(-2.5, 0xc67fff, 'SALIDA');
+    createMarker(2.5, 0x00d9ff, 'ENTRADA');
+
+    //* Indicadores dinámicos de Frente y Final
+    const frontDiv = document.createElement('div');
+    frontDiv.style.position = 'absolute';
+    frontDiv.style.color = '#ff7070';
+    frontDiv.style.fontFamily = "'Space Mono', monospace";
+    frontDiv.style.fontSize = '14px';
+    frontDiv.style.fontWeight = '700';
+    frontDiv.style.display = 'none';
+    frontDiv.textContent = 'Frente ↓';
+    queueCanvas.appendChild(frontDiv);
+
+    const rearDiv = document.createElement('div');
+    rearDiv.style.position = 'absolute';
+    rearDiv.style.color = '#70ff70';
+    rearDiv.style.fontFamily = "'Space Mono', monospace";
+    rearDiv.style.fontSize = '14px';
+    rearDiv.style.fontWeight = '700';
+    rearDiv.style.display = 'none';
+    rearDiv.textContent = 'Final ↑';
+    queueCanvas.appendChild(rearDiv);
+
+    //* Función para actualizar etiquetas de Frente y Final
+    const tempVector = new THREE.Vector3();
+    function updateQueueLabels() {
+
+        if (queue.length > 0) {  // <<<<<<<<<<<<<< CORREGIDO (antes chequeaba frontIndex inexistente)
+
+            const frontBox = queue[0];
+            const rearBox = queue[queue.length - 1];
+
+            if (frontBox) {
+                if (queue.filter(x => x !== null).length === 1) {
+                    frontDiv.textContent = 'Frente ↓';
+                    rearDiv.style.display = 'none';
+                } else {
+                    frontDiv.textContent = 'Frente ↓';
+                    rearDiv.textContent = 'Final ↑';
+                }
+
+                //* Frente
+                tempVector.copy(frontBox.position);
+                tempVector.project(camera);
+                const fx = (tempVector.x * 0.5 + 0.5) * width;
+                const fy = (-tempVector.y * 0.5 + 0.5) * height;
+                frontDiv.style.left = `${fx - 50}px`;
+                frontDiv.style.top = `${fy - 40}px`;
+                frontDiv.style.display = 'block';
+            } else {
+                frontDiv.style.display = 'none';
+            }
+
+            //* Final
+            if (rearBox) {
+                tempVector.copy(rearBox.position);
+                tempVector.project(camera);
+                const rx = (tempVector.x * 0.5 + 0.5) * width;
+                const ry = (-tempVector.y * 0.5 + 0.5) * height;
+                rearDiv.style.left = `${rx - 50}px`;
+                rearDiv.style.top = `${ry + 25}px`;
+                rearDiv.style.display = 'block';
+            } else {
+                rearDiv.style.display = 'none';
+            }
+
+        } else {
+            frontDiv.style.display = 'none';
+            rearDiv.style.display = 'none';
+        }
+    }
+
+    //TODO: Eventos de botones
+    document.getElementById('queueCircle-enqueue').addEventListener('click', () => {
+        if (queue.length < maxQueueSize) {
+            const colors = [0x00ff9d, 0x00d9ff, 0xc67fff, 0xffde59];
+            const material = new THREE.MeshPhongMaterial({ color: colors[queue.length % colors.length] });
+            const box = new THREE.Mesh(boxGeometry, material);
+
+            //* Empieza fuera de la vista a la derecha
+            box.position.set(4, 0, 0);
+            box.scale.set(0.1, 0.1, 0.1);
+            scene.add(box);
+            queue.push(box);
+
+            //* Reordenar toda la cola
+            repositionQueue();
+            updateQueueLabels();
+
+            if (pushEnqueuesound) {
+                pushEnqueuesound.pause();
+                pushEnqueuesound.currentTime = 0;
+                pushEnqueuesound.play().catch(() => {});
+            }
+        } else {
+            showAlert("Queue Overflow!", "La cola está llena. No puedes agregar más elementos hasta que elimines algunos.", "error");
+        }
+    });
+
+    document.getElementById('queueCircle-dequeue').addEventListener('click', () => {
+        if (queue.length > 0) {
+            const box = queue.shift();
+            gsap.to(box.position, {
+                x: -4,
+                duration: 0.7,
+                ease: "power2.inOut",
+                onComplete: () => {
+                    scene.remove(box);
+                    updateQueueLabels();
+                }
+            });
+
+            setTimeout(repositionQueue, 100);
+            
+            if (popDequeuesound) {
+                popDequeuesound.pause();
+                popDequeuesound.currentTime = 0;
+                popDequeuesound.play().catch(() => {});
+            }
+        } else {
+            showAlert('Queue Underflow!', 'La cola está vacía. No puedes eliminar elementos porque no hay ninguno.', 'warning');
+        }
+    });
+
+    function repositionQueue() {
+        queue.forEach((box, index) => {
+            const targetX = 1.5 - (index * 1.2);
+            const targetScale = 1;
+
+            gsap.to(box.position, {
+                x: targetX,
+                duration: 0.7,
+                ease: "power2.out"
+            });
+
+            gsap.to(box.scale, {
+                x: targetScale,
+                y: targetScale,
+                z: targetScale,
+                duration: 0.5,
+                ease: "back.out"
+            });
+        });
+    }
 
     //* Animación
     function animate() {

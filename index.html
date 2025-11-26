@@ -85,7 +85,7 @@
                     <p>Clasificación: <b>Lineal.</b></p>
                     <p>Regla Clave: Sigue la regla <b>LIFO (Last In, First Out)</b>: El último en entrar es el primero
                         en salir.</p>
-                    <p>Operaciones: <b>Push (insertar) y Pop (eliminar)</b>, <b>solo desde la parte superior.</b></p>
+                    <p>Operaciones: <b>Push (insertar) y Pop (eliminar)</b>, <b>solo desde la parte superior.</b></p> <br>
 
                     <div class="visualization-area">
                         <h4>Visualización Interactiva</h4>
@@ -105,17 +105,20 @@
                         en salir.</p>
                     <p>Distinción de Extremos: Se opera desde el <b>Frente</b> (por donde salen) y <b>Final</b> (por
                         donde entran)</p>
-
-                    <div class="visualization-area">
-                        <h4>Visualización Interactiva</h4>
-                        <div class="canvas-container" id="queue-canvas"></div>
-                        <div class="control-buttons">
-                            <button class="control-btn enqueue" id="queue-enqueue">Enqueue <i
-                                    class="fas fa-arrow-right"></i></button>
-                            <button class="control-btn dequeue" id="queue-dequeue">Dequeue <i
-                                    class="fas fa-arrow-left"></i></button>
-                        </div>
+                    
+                    <!--* Selector de tipo de cola -->
+                    <div class="queue-selector">
+                        <label for="tipoCola"><b>Selecciona el tipo de cola:</b></label>
+                        <select id="tipoCola">
+                            <option value="simple" selected>Cola Simple</option>
+                            <option value="circular">Cola Circular</option>
+                        </select>
                     </div>
+
+                    <div id="colaContainer"></div> <!--* Contenedor donde se insertará la visualización -->
+
+                    <!--* Script para el Cambio de Tipo de Colas -->
+                    <script src="JS/CambiarAnimacionColas.js"></script>
                 </article>
 
                 <article class="tda-card" data-tda="arboles">
@@ -123,7 +126,7 @@
                     <p>Clasificación: <b>No Lineal.</b></p>
                     <p>Regla Clave: Estructura <b>jerárquica</b>. Cada nodo puede tener hijos y un único padre, excepto
                         el <b>nodo raíz</b>.</p>
-                    <p>Operaciones: Recorridos (preorden, inorden, postorden), Inserción, Eliminación.</p>
+                    <p>Operaciones: Recorridos (preorden, inorden, postorden), Inserción, Eliminación.</p><br>
 
                     <div class="visualization-area">
                         <h4>Visualización Interactiva</h4>
