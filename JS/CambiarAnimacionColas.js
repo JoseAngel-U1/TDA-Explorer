@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    //TODO: Plantillas de Colas:
     const templateSimple = `
         <div class="visualization-area" id="colaSimple">
             <h4>Visualización Interactiva</h4>

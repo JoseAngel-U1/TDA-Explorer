@@ -320,21 +320,26 @@ section {
 }
 
 
-/*TODO: Selector de Colas: */
-.queue-selector {
+/*TODO: Selector de Colas Y Arboles: */
+.Colas-Arboles-selector {
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
-.queue-selector label {
+.Colas-Arboles-selector label {
     color: #fff;
     font-size: 15px;
     font-weight: bold;
 }
 
-#tipoCola {
+.Pilas-label{/*? Pilas separador */
+    margin: 40px 0px 45px;
+    text-align: center;
+}
+
+#tipoCola, #tipoArbol {
     background: #1a1a1a;
     color: #ffde59;
     border: 2px solid #2f2b2b;
@@ -350,17 +355,34 @@ section {
     border-color: #00ff95;
     color: #00ff95;
 }
-
-#tipoCola:focus {
+#tipoArbol:hover {
     border-color: #00ff95;
-    box-shadow: 0 0 8px #00ff95;
-}
-
-#tipoCola option {
-    background: #1a1a1a;
-    color: #fff;
+    color: #00ff95;
 }
 /*TODO: Fin Selector */
+
+/*TODO: Boton de Arbol Binario: */
+.btn-ABB {
+    padding: 5px 0px;
+    color: var(--accent-green);
+    border: 3px solid var(--accent-green);
+    border-radius: var(--card-border-radius);
+    font-family: 'Space Mono', monospace;
+    font-weight: 150;
+    font-size: 1rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+.btn-ABB:hover {
+    transform: translateY(-3px);
+    box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8);
+}
+/*TODO: Fin Boton de Arbol Binario */
 
 
 footer {

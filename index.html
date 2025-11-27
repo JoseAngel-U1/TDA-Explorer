@@ -80,12 +80,17 @@
             </p>
 
             <div class="tda-container">
+                <!--* Pilas -->
                 <article class="tda-card" data-tda="pilas">
                     <h3>Pilas (Stacks)</h3>
                     <p>Clasificación: <b>Lineal.</b></p>
                     <p>Regla Clave: Sigue la regla <b>LIFO (Last In, First Out)</b>: El último en entrar es el primero
                         en salir.</p>
-                    <p>Operaciones: <b>Push (insertar) y Pop (eliminar)</b>, <b>solo desde la parte superior.</b></p> <br>
+                    <p>Operaciones: <b>Push (insertar) y Pop (eliminar)</b>, <b>solo desde la parte superior.</b></p>
+                    
+                    <div class="Pilas-label">
+                        <label><b>Pila de 5 Elementos:</b></label>
+                    </div>
 
                     <div class="visualization-area">
                         <h4>Visualización Interactiva</h4>
@@ -98,6 +103,7 @@
                     </div>
                 </article>
 
+                <!--* Colas -->
                 <article class="tda-card" data-tda="colas">
                     <h3>Colas (Queues)</h3>
                     <p>Clasificación: <b>Lineal.</b></p>
@@ -107,7 +113,7 @@
                         donde entran)</p>
                     
                     <!--* Selector de tipo de cola -->
-                    <div class="queue-selector">
+                    <div class="Colas-Arboles-selector">
                         <label for="tipoCola"><b>Selecciona el tipo de cola:</b></label>
                         <select id="tipoCola">
                             <option value="simple" selected>Cola Simple</option>
@@ -121,25 +127,33 @@
                     <script src="JS/CambiarAnimacionColas.js"></script>
                 </article>
 
+                <!--* Arboles -->
                 <article class="tda-card" data-tda="arboles">
                     <h3>Árboles (Trees)</h3>
                     <p>Clasificación: <b>No Lineal.</b></p>
                     <p>Regla Clave: Estructura <b>jerárquica</b>. Cada nodo puede tener hijos y un único padre, excepto
                         el <b>nodo raíz</b>.</p>
-                    <p>Operaciones: Recorridos (preorden, inorden, postorden), Inserción, Eliminación.</p><br>
-
-                    <div class="visualization-area">
-                        <h4>Visualización Interactiva</h4>
-                        <div class="canvas-container" id="tree-canvas"></div>
-                        <div class="control-buttons">
-                            <button class="control-btn insert" id="tree-insert">Insert <i
-                                    class="fas fa-plus"></i></button>
-                            <button class="control-btn delete" id="tree-delete">Delete <i
-                                    class="fas fa-minus"></i></button>
-                        </div>
+                    <p>Operaciones: Recorridos (preorden, inorden, postorden), Inserción, Eliminación.</p>
+                    
+                    <!--* Selector de tipo de cola -->
+                    <div class="Colas-Arboles-selector">
+                        <label for="tipoArbol"><b>Selecciona el tipo de Arbol:</b></label>
+                        <select id="tipoArbol">
+                            <option value="Ax" selected>Arbol</option>
+                            <option value="AG">Arbol General &nbsp;&nbsp;&nbsp;"AG"</option>
+                            <option value="AB">Arbol Binario &nbsp;&nbsp;&nbsp;"AB"</option>
+                            <option value="ABB">Arbol Binario De Busqueda &nbsp;&nbsp;"ABB"</option>
+                            <!--? <option value="AB+">Arbol Balanceado &nbsp;&nbsp;&nbsp;"AB+"</option>     """"MAS ADELANTE"""-->
+                        </select>
                     </div>
+                    
+                    <div id="arbolesContainer"></div> <!--* Contenedor donde se insertará la visualización -->
+                    
+                    <!--* Script para el Cambio de Tipo de Colas -->
+                    <script src="JS/CambiarAnimacionArboles.js"></script>
                 </article>
 
+                <!--* Lista -->
                 <article class="tda-card" data-tda="listas">
                     <h3>Listas (Lists)</h3>
                     <p>Clasificación: <b>Dinámica.</b></p>

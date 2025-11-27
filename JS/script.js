@@ -115,8 +115,8 @@ document.addEventListener('DOMContentLoaded', function () {
     //* Inicializar visualizaciones: "Reprecentaciones Graficas"
     setupStackVisualization();
     /* setupQueueVisualization(); //? Se carga en el script: "CambiarAnimacionCola.js"
-    setupQueueCircleVisualization();//? Se carga en el script: "CambiarAnimacionCola.js" */
-    setupTreeVisualization();
+    setupQueueCircleVisualization();//? Se carga en el script: "CambiarAnimacionCola.js"
+    setu"TreeVisualization();//? Se carga en el script: "CambiarAnimacionCola.js" */
     setupListVisualization();
     setupRecursionVisualization();
 
@@ -712,7 +712,7 @@ function setupQueueCircleVisualization() {
 }
 
 
-//TODO: Configuración de la visualización de Árboles
+//TODO: Configuración de la visualización de Árboles:
 function setupTreeVisualization() {
     const treeCanvas = document.getElementById('tree-canvas');
     const width = treeCanvas.clientWidth;
@@ -921,6 +921,364 @@ function setupTreeVisualization() {
     }
     animate();
 }
+
+//* Árboles Generales (RAÍZ - 3 HIJOS):
+function setupGeneralTreeVisualization() {
+    const treeCanvas = document.getElementById('tree-canvas');
+    const width = treeCanvas.clientWidth;
+    const height = treeCanvas.clientHeight;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(width, height);
+    renderer.setClearColor(0x252525);
+    treeCanvas.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.z = 6;
+    camera.position.y = 1;
+
+    //* Iluminación
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(0, 5, 10);
+    scene.add(light);
+
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+
+    //* Clase para nodos del árbol
+    class TreeNode {
+        constructor(value, x, y, color) {
+            this.value = value;
+            this.children = [];
+            this.x = x;
+            this.y = y;
+            this.color = color;
+
+            //* Crear la esfera para el nodo
+            const geometry = new THREE.SphereGeometry(0.4, 32, 32);
+            const material = new THREE.MeshPhongMaterial({ color });
+            this.mesh = new THREE.Mesh(geometry, material);
+            this.mesh.position.set(x, y, 0);
+            this.mesh.scale.set(0, 0, 0);
+            scene.add(this.mesh);
+
+            //* Animación de entrada
+            gsap.to(this.mesh.scale, {
+                x: 1, y: 1, z: 1,
+                duration: 0.5,
+                ease: "back.out"
+            });
+        }
+    }
+
+    //* Función para crear líneas entre nodos
+    function createLine(startNode, endNode) {
+        const material = new THREE.LineBasicMaterial({ color: 0x666666 });
+        const points = [
+            new THREE.Vector3(startNode.x, startNode.y, 0),
+            new THREE.Vector3(endNode.x, endNode.y, 0)
+        ];
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.Line(geometry, material);
+        scene.add(line);
+    }
+
+    //* Crear árbol fijo:
+    const root = new TreeNode(1,0,2,0x00ff9d);
+    
+    const child1 = new TreeNode(2,-2,0.5,0x00d9ff);  createLine(root,child1);
+    const child2 = new TreeNode(3, 0,0.5,0xc67fff);  createLine(root,child2);
+    const child3 = new TreeNode(4, 2,0.5,0xff6b6b);  createLine(root,child3);
+
+    root.children.push(child1,child2,child3);
+
+    //* Animación
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+    animate();
+}
+
+//* Árboles Binario (RAÍZ - MAX 2 HIJOS):
+function setupBianryTreeVisualization() {
+    const treeCanvas = document.getElementById('tree-canvas');
+    const width = treeCanvas.clientWidth;
+    const height = treeCanvas.clientHeight;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(width, height);
+    renderer.setClearColor(0x252525);
+    treeCanvas.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.z = 6;
+    camera.position.y = 1;
+
+    //* Iluminación
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(0, 5, 10);
+    scene.add(light);
+
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+
+    //* Clase para nodos del árbol
+    class TreeNode {
+        constructor(value, x, y, color) {
+            this.value = value;
+            this.left = null;    //? hijo izquierdo
+            this.right = null;   //? hijo derecho
+            this.x = x;
+            this.y = y;
+            this.color = color;
+
+            //* Crear la esfera para el nodo
+            const geometry = new THREE.SphereGeometry(0.4, 32, 32);
+            const material = new THREE.MeshPhongMaterial({ color });
+            this.mesh = new THREE.Mesh(geometry, material);
+            this.mesh.position.set(x, y, 0);
+            this.mesh.scale.set(0, 0, 0);
+            scene.add(this.mesh);
+
+            //* Animación de entrada
+            gsap.to(this.mesh.scale, {
+                x: 1, y: 1, z: 1,
+                duration: 0.5,
+                ease: "back.out"
+            });
+        }
+    }
+
+    //* Función para crear líneas entre nodos
+    function createLine(startNode, endNode) {
+        const material = new THREE.LineBasicMaterial({ color: 0x666666 });
+        const points = [
+            new THREE.Vector3(startNode.x, startNode.y, 0),
+            new THREE.Vector3(endNode.x, endNode.y, 0)
+        ];
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.Line(geometry, material);
+        scene.add(line);
+    }
+
+    //* Crear árbol fijo:
+    const root = new TreeNode(1,0,2,0x00ff9d);
+    
+    const left  = new TreeNode(2, -2, 0.5, 0x00d9ff);
+    const right = new TreeNode(3,  2, 0.5, 0xff6b6b);
+
+    root.left = left;
+    root.right = right;
+
+    createLine(root, left);
+    createLine(root, right);
+
+    //* Animación
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+    animate();
+}
+
+//* Árboles Binario de Buesqueda (izq <-- R --> der):
+function setupBianrySearchTreeVisualization() {
+    const treeCanvas = document.getElementById('tree-canvas');
+    const width = treeCanvas.clientWidth;
+    const height = treeCanvas.clientHeight;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(width, height);
+    renderer.setClearColor(0x252525);
+    treeCanvas.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.z = 6;
+    camera.position.y = 1;
+
+    //* Iluminación
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(0, 5, 10);
+    scene.add(light);
+
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+
+    //* Clase para nodos del árbol
+    class TreeNode {
+        constructor(value, x, y, color) {
+            this.value = value;
+            this.left = null;    //? hijo izquierdo
+            this.right = null;   //? hijo derecho
+            this.x = x;
+            this.y = y;
+
+            //* Crear la esfera para el nodo
+            const geometry = new THREE.SphereGeometry(0.45, 32, 32);
+            const material = new THREE.MeshPhongMaterial({ color });
+            this.mesh = new THREE.Mesh(geometry, material);
+            this.mesh.position.set(x, y, 0);
+            this.mesh.scale.set(0, 0, 0);
+            scene.add(this.mesh);
+
+
+            //* TEXTO SOBRE EL NODO (LO QUE NECESITAS)
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = 256;
+            canvas.height = 256;
+            ctx.fillStyle = "white";
+            ctx.font = "bold 130px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(value, canvas.width/2, canvas.height/2);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+            this.label = new THREE.Sprite(spriteMaterial);
+            this.label.scale.set(1, 1, 2);   //? Más proporcionado a la esfera
+            this.label.position.set(x, y, 0.7); //? Frente de la bolita
+            this.label.renderOrder = 1;
+            this.label.material.depthTest = false; 
+            scene.add(this.label);
+
+            //* Animación de entrada
+            gsap.to(this.mesh.scale, {
+                x: 1, y: 1, z: 1,
+                duration: 0.5,
+                ease: "back.out"
+            });
+        }
+
+        //* Animaciones:
+        animarBajada(x, y) {
+            gsap.to(this.mesh.position, {
+                x,
+                y,
+                duration: 1,
+                ease: "power2.out"
+            });
+            this.x = x;
+            this.y = y;
+            gsap.to(this.label.position,{ x, y, z:0.65, duration:0.9, ease:"power2.out" });
+        }
+
+        animarSubida(x, y){
+            gsap.to(this.mesh.position, {
+                x,
+                y,
+                duration: 1,
+                ease: "power2.out"
+            });
+            this.x = x;
+            this.y = y;
+            gsap.to(this.label.position,{ x, y, z:0.65, duration:1, ease:"power2.out" });
+        }
+    }
+
+    //* Función para crear líneas entre nodos
+    function createLine(parent, child) {
+        if(child.line) scene.remove(child.line);
+        const points = [
+            new THREE.Vector3(parent.x, parent.y, 0),
+            new THREE.Vector3(child.x, child.y, 0)
+        ];
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({ color: 0x666666 });
+        child.line = new THREE.Line(geometry, material);
+        scene.add(child.line);
+    }
+
+    //* Crear árbol fijo (R=20, HIJOS=14,25):
+    const root = new TreeNode(20, 0, 1, 0x00ff9d); //? Nodo Raíz
+    
+    let n14 = new TreeNode(14, -1, 2.5, 0xff6b6b ); //?0x00d9ff Nodo Pre-Colocado arriba del arbol (aún no se inserta)
+    let n25 = new TreeNode(25,  1, 2.5, 0xff6b6b); //? Nodo Pre-Colocado arriba del arbol (aún no se inserta)
+
+    let inserted14=false;
+    let inserted25=false;
+
+    
+    //TODO: Eventos de botones
+    document.getElementById("tree-insert").onclick=()=>{
+
+        if(!inserted14){ //* PRIMERO BAJA 14
+            n14.animarBajada(-1.2,0); //? posición final real
+            createLine(root,n14);
+            root.left=n14;
+            inserted14=true;
+            
+            //* Reproducir sonido de push
+            if (pushEnqueuesound) {
+                pushEnqueuesound.pause();
+                pushEnqueuesound.currentTime = 0;
+                pushEnqueuesound.play().catch(() => {});
+            }
+            return;
+        }
+
+        if(!inserted25){ //* LUEGO BAJA 25
+            n25.animarBajada(1.2,0); //? posición final
+            createLine(root,n25);
+            root.right=n25;
+            inserted25=true;
+
+            //* Reproducir sonido de push
+            if (pushEnqueuesound) {
+                pushEnqueuesound.pause();
+                pushEnqueuesound.currentTime = 0;
+                pushEnqueuesound.play().catch(() => {});
+            }
+            return;
+        }
+        
+        //? showAlert("Alto","Ya insertaste los 2 nodos iniciales.","warning");
+    };
+
+
+    document.getElementById("tree-delete").onclick = () => {
+
+        if(inserted14){ //* Si 14 estaba insertado -> regresarlo arriba
+            root.left = null;  //? Se desconecta del árbol
+            scene.remove(n14.line); //? Rremover la línea
+            n14.animarSubida(-1,2.5); //? posición original
+            inserted14 = false;
+        }
+        
+        if(inserted25){//* Si 25 estaba insertado -> regresarlo arriba
+            root.right = null;
+            scene.remove(n25.line);
+            n25.animarSubida(1,2.5);
+            inserted25 = false;
+        }
+
+        //* sonido delete/pop
+        if (popDequeuesound) {
+            popDequeuesound.pause();
+            popDequeuesound.currentTime = 0;
+            popDequeuesound.play().catch(() => {});
+        }
+    };
+    
+
+    //* Animación
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+    animate();
+}
+
+//* Árboles balanceado (Sub_L == Sub_R):
+function setupDalancedTreeVisualization() {
+    //? MAS ADELANTE
+}
+
 
 //TODO: Configuración de la visualización de Listas
 function setupListVisualization() {
